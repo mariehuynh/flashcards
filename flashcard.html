@@ -87,10 +87,10 @@
       var cards = that.cards;
 
       // now bind a listener for card order
-      that.cardsRef.child("stackorder").child(userName).child(stackName).on('value', function (snapshot) {
+      that.cardsRef.child("stackorder").child(stackName).child(userName).on('value', function (snapshot) {
         var tmpOrder = snapshot.val();
         if (tmpOrder === null) {  // no existing order; set a default
-          that.cardsRef.child("stackorder").child(userName).child(stackName).set(Object.keys(tmpCards));
+          that.cardsRef.child("stackorder").child(stackName).child(userName).set(Object.keys(tmpCards));
           // that set() triggers this callback again, so don't bother updating with the new order now
           return false;
         }
@@ -140,7 +140,7 @@
     for (; i < this.cards.length; i++) {
       newOrder[i] = this.cards[i].cardID;
     }
-    this.cardsRef.child("stackorder").child(this.userName).child(this.stackName).set(newOrder);
+    this.cardsRef.child("stackorder").child(this.stackName).child(this.userName).set(newOrder);
   }
 
   Cards.Controller.prototype.displayTopCard = function () {
