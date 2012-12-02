@@ -129,11 +129,12 @@
 
     });
 
-    $("#flipButton").click(function () {
-      // flip card
-      self.flipTopCard();
-    });
+    $("#flipButton").toggle(function() {
+      self.flipTopCard('front');
+    }, function() {
+      self.flipTopCard('back');
 
+    });
   };
 
   Cards.Controller.prototype.displayTopCard = function () {
@@ -146,13 +147,15 @@
   
   }
 
-  Cards.Controller.prototype.flipTopCard = function () {
+  Cards.Controller.prototype.flipTopCard = function (side) {
     // Clear Canvas
     this.canvas.width = this.canvas.width;
+
+    // Redraw Canvas
     this.context.textAlign = 'center';
     this.context.font="40px Arial";
     this.context.fillStyle="#000000";
-    this.context.fillText(this.cards[0]['back'], 250, 180);
+    this.context.fillText(this.cards[0][side], 250, 180);
   }
 
   start();
