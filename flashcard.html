@@ -11,8 +11,9 @@
   <div>
     <canvas id="canvas0" width="500" height="500"></canvas>
   </div>
-  <input type="button" id="restartButton" value="Restart Game" disabled />
-  <p id="gameInProgress">Game is in progress.  You will automatically join if either player leaves.</p>
+  <input type="button" id="easyButton" value="That was Easy" />
+  <input type="button" id="flipButton" value="Flip"          />
+  <input type="button" id="hardButton" value="That was Hard" />
 
 
 <script type="text/javascript">
@@ -55,10 +56,8 @@
    * Stores the state of a flashcards stack and handles drawing it.
    */
   Cards.Stack = function (canvas, playerRef) {
-    this.context = canvas.getContext('2d');
     this.playerRef = playerRef;
     this.snapshot = null;
-    this.isMyBoard = false;
 
     /*
     // Listen for changes to our board.
@@ -71,17 +70,14 @@
   };
 
 
-
   Cards.Controller = function (cardsRef) {
     this.cardsRef = cardsRef;
 
     // Import cards into stacks
     this.importCards();
 
-    // Draw cards
-    this.drawCanvas();
-    //this.playingState = Cards.PlayingState.Watching;
-    //this.waitToJoin();
+    // Start game
+    this.play();
   };
 
 
@@ -106,47 +102,54 @@
    };
 
 
-  Cards.Controller.prototype.drawCanvas = function () {
-
-    var playerRef = this.cardsRef.child('player');
-    var canvas = $('#canvas0').get(0);
-    this.stacks.push(new Cards.Stack(canvas, playerRef));
-
-  };
-
-
   /**
    * Once we've joined, enable controlling our player.
    */
-  Cards.Controller.prototype.startPlaying = function (playerNum) {
-    this.myPlayerRef = this.cardsRef.child('player' + playerNum);
-    this.opponentPlayerRef = this.cardsRef.child('player' + (1 - playerNum));
-    this.myBoard = this.boards[playerNum];
-    this.myBoard.isMyBoard = true;
-    this.myBoard.draw();
+  Cards.Controller.prototype.play = function () {
+    var canvas = $("#canvas0").get(0);
+    
+    var context = canvas.getContext('2d');
 
-    // Clear our 'online' status when we disconnect so somebody else can join.
-    this.myPlayerRef.child('online').removeOnDisconnect();
-
-    // Detect when other player pushes rows to our board.
-    this.watchForExtraRows();
-
-    // Detect when game is restarted by other player.
-    this.watchForRestart();
-
-    $('#gameInProgress').hide();
+asdf.fillText("Hello World",10,50);    
+    this.displayCard();
 
     var self = this;
-    $('#restartButton').removeAttr('disabled');
-    $("#restartButton").click(function () {
-      self.restartGame();
+
+    $("#easyButton").click(function () {
+      // Mark card as easy
+
+
+      // Reinsert card
+
+
+      // Display next card
+      this.displayCard();
     });
 
-    this.initializePiece();
-    this.enableKeyboard();
-    this.resetGravity();
+    $("#hardButton").click(function () {
+      // Mark card as hard
+
+
+      // Reinsert card
+
+
+      // Display next card
+      this.displayCard();
+
+    });
+
+    $("#flipButton").click(function () {
+      // flip card
+
+    });
+
+    //this.enableKeyboard();
   };
 
+  Cards.Controller.prototype.displayCard = function () {
+  
+  
+  }
 
   start();
 
