@@ -59,7 +59,7 @@
 
   Cards.Stack.prototype.setOrder = function (cardOrder) {
     // input: list of card_id
-
+    
   }
 
   Cards.Controller = function (cardsRef) {
@@ -76,14 +76,29 @@
   Cards.Controller.prototype.importStack = function (stackName) {
     // load cards
     that = this;
-    var tempCards = this.cardsRef.child("cards").child(stackName).once('value', function (snapshot) {
+    this.cardsRef.child("cards").child(stackName).once('value', function (snapshot) {
+      // get the cards themselves, which are static`
       var tmpCards = snapshot.val();
+
+      // allocate storage and make local alias
       that.cards = new Array(tmpCards.length);
       var cards = that.cards;
-      var i = 0;
-      for (var card_id in tmpCards) {
-        cards[i++] = new Cards.Card(card_id, tmpCards[card_id]);
-      }
+
+      // now bind updater for card order
+      that.cardsRef.child("stackorder").child("foton").child(stackName).on('value', function (snapshot) {
+        var tmpOrder = snapshot.val();
+        if (tmpOrder === null) {
+          that.cardsRef.child("stackorder").child("foton").child(stackName).set(Object.keys(tmpCards));
+          return false;
+        }
+        for (var i=0; i < tmpOrder.length; i++) {
+          var card_id = tmpOrder[i];
+          cards[i] = new Cards.Card(card_id, tmpCards[card_id]);
+        }
+        // now that order has been updated, call displayTopCard()
+      });
+
+
     });
    };
 
