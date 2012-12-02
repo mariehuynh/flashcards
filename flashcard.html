@@ -84,10 +84,10 @@
       that.cards = new Array(tmpCards.length);
       var cards = that.cards;
 
-      // now bind updater for card order
+      // now bind a listener for card order
       that.cardsRef.child("stackorder").child("foton").child(stackName).on('value', function (snapshot) {
         var tmpOrder = snapshot.val();
-        if (tmpOrder === null) {
+        if (tmpOrder === null) {  // no existing order; set a default
           that.cardsRef.child("stackorder").child("foton").child(stackName).set(Object.keys(tmpCards));
           // that set() triggers this callback again, so don't bother updating with the new order now
           return false;
