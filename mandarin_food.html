@@ -8,8 +8,8 @@
   <style>
     #card {
       width:499px;
-      height:304px;
-      font-size: 40px;
+      height:200px;
+      font-size: 80px;
       text-align: center;
       margin-left: auto;
       margin-right: auto;
@@ -18,6 +18,7 @@
       background-repeat:no-repeat;
       background-position:center; 
       vertical-align: middle;
+      padding-top:100px;
     }
 
     #card img{
@@ -176,7 +177,14 @@
 
     if(side == 'back') {
       $("#card").html(this.cards[0]['back'] + "<br>" + this.cards[0]['notes']);
-
+      $("#card").css("font-size", "50px");
+      $("#card").css("padding-top", "50px");
+      $("#card").css("height", "250 ");
+    }
+    else{
+      $("#card").css("font-size", "80px");
+      $("#card").css("padding-top", "100px");
+      $("#card").css("height", "200 ");
     }
   }
 
