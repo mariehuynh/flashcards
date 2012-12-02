@@ -66,7 +66,7 @@
     this.cardsRef = cardsRef;
 
     // FIXME: hardcoded
-    this.stackName = "foods_mandarin"
+    this.stackName = "hackathon_apis"
     this.importStack(this.stackName);
 
     // Start game
@@ -151,7 +151,7 @@
   Cards.Controller.prototype.displayTopCard = function (side) {
 
 
-    $("#card").text(this.cards[0][side]);
+    $("#card").html(this.cards[0][side]);
     this.state = side;
 
     if(side == 'back') {

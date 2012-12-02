@@ -3,6 +3,7 @@
 Import a three-column CSV file as (front content, back content, notes).
 """
 
+import sys
 from datetime import datetime
 from os import access, R_OK, urandom, W_OK
 from os.path import basename, splitext
@@ -82,8 +83,12 @@ stack = fb.get()
 if stack is not None:
     if not opts.force:
         raise KeyError("stack already exists and --force not given")
+    print >>sys.stderr, "Warning: overwriting data set and deleting user orderings; browsers may get into a bad state"
+    url = u"https://%s.firebaseio.com/stackorder/%s/%s" % (opts.project, userid, opts.stackname)
+    Firebase(url).delete()
 else:
     stack = {u"ctime": now}
+
 stack[u"atime"] = now
 stack[u"mtime"] = now
 stack[u"creator"] = userid
