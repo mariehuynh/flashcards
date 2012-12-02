@@ -89,6 +89,7 @@
         var tmpOrder = snapshot.val();
         if (tmpOrder === null) {
           that.cardsRef.child("stackorder").child("foton").child(stackName).set(Object.keys(tmpCards));
+          // that set() triggers this callback again, so don't bother updating with the new order now
           return false;
         }
         for (var i=0; i < tmpOrder.length; i++) {
@@ -97,8 +98,6 @@
         }
         // now that order has been updated, call displayTopCard()
       });
-
-
     });
    };
 
