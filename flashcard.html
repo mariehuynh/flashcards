@@ -122,7 +122,7 @@
 
     $("#hardButton").click(function () {
       // Reinsert card
-
+      self.moveTopCard(2);
 
       // Display next card
       self.displayTopCard();
@@ -134,25 +134,22 @@
       self.flipTopCard();
     });
 
-    //this.enableKeyboard();
   };
 
-  Cards.Controller.prototype.displayTopCard = function (context) {
+  Cards.Controller.prototype.displayTopCard = function () {
     this.context.font="40px Arial";
     this.context.fillStyle="#000000";
     this.context.fillText(this.cards[0]['front'], 250, 180);
   }
 
-  Cards.Controller.prototype.moveTopCard = function (context) {
-    this.context.font="40px Arial";
-    this.context.fillStyle="#000000";
-    this.context.fillText(this.cards[0]['front'], 250, 180);
+  Cards.Controller.prototype.moveTopCard = function (level) {
+  
   }
 
-  Cards.Controller.prototype.flipTopCard = function (context) {
-    this.canvas.width=this.canvas.width;
+  Cards.Controller.prototype.flipTopCard = function () {
+    // Clear Canvas
+    this.canvas.width = this.canvas.width;
     this.context.textAlign = 'center';
-    
     this.context.font="40px Arial";
     this.context.fillStyle="#000000";
     this.context.fillText(this.cards[0]['back'], 250, 180);
