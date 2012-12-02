@@ -1,0 +1,100 @@
+#!/usr/bin/env python
+"""
+Import a three-column CSV file as (front content, back content, notes).
+"""
+
+from datetime import datetime
+from os import access, R_OK, urandom, W_OK
+from os.path import basename, splitext
+from optparse import OptionParser
+from firebase import Firebase
+
+def unix_time_ms(dt):
+    epoch = datetime.utcfromtimestamp(0)
+    delta = dt - epoch
+    return int(delta.total_seconds() * 1000)
+
+def rand_id():
+    return urandom(16).encode('hex')
+
+# deal with arguments
+parser = OptionParser(description=__doc__)
+parser.add_option("-s", "--stackname", help="what to name this stack (default: take from filename)")
+parser.add_option("-p", "--project", default="foton", help="Firebase project name (i.e. URL starts with https://PROJECT.firebase.com)")
+parser.add_option("-d", "--delimiter", default=",", help="field delimiter")
+parser.add_option("-f", "--force", default=False, action="store_true", help="overwrite existing stack; WARNING: this changes all of the card IDs, which breaks the history for a given stack")
+opts, args = parser.parse_args()
+
+userid, csv_file = args
+if not access(csv_file, R_OK):
+    parser.error("file does not exist or is not readable:" + args.csv_file)
+
+if opts.stackname is None:
+    opts.stackname = splitext(basename(csv_file))[0]
+
+# parse file
+rowlen = 0
+with open(csv_file) as f:
+    cards = {}
+    for line in f:
+        if not line or line.startswith("#"):
+            continue
+        card = map(str.strip, line.split(opts.delimiter))
+        rowlen = len(card)
+        if rowlen == 2:  # front, back
+            cards[rand_id()] = {u"front": card[0], u"back": card[1]}
+        elif rowlen == 3:  # front, back, notes
+            cards[rand_id()] = {u"front": card[0], u"back": card[1], u"notes": card[2]}
+        elif rowlen == 4:  # unique ID, front, back, notes
+            cards[card[0]] = {u"front": card[1], u"back": card[2], u"notes": card[3]}
+
+        else:
+            raise ValueError("file must have exactly two or three fields")
+    if not cards:
+        raise ValueError("empty stack; aborting")
+
+# if unique IDs weren't given, write out new file with them
+if rowlen != 4 and access(csv_file, W_OK):
+    with open(csv_file + ".written", "w") as f:
+        f.write("\n".join(",".join(card) for card in cards))
+
+# create or update user
+url = u"https://%s.firebaseio.com/users/%s" % (opts.project, userid)
+fb = Firebase(url)
+user = fb.get()
+now = unix_time_ms(datetime.utcnow())
+if user is None:
+    user = {u"ctime": now,
+            u"atime": now,
+            u"histories": {}}
+    result = fb.set(user)
+    print "Created user: " + str(result)
+else:
+    user[u"atime"] = now
+    result = fb.set(user)
+    print "Updated user atime: " + str(result)
+
+# create or overwrite stack
+url = u"https://%s.firebaseio.com/stacks/%s" % (opts.project, opts.stackname)
+fb = Firebase(url)
+now = unix_time_ms(datetime.utcnow())
+stack = fb.get()
+if stack is not None:
+    if not opts.force:
+        raise KeyError("stack already exists and --force not given")
+else:
+    stack = {u"ctime": now}
+stack[u"atime"] = now
+stack[u"mtime"] = now
+stack[u"creator"] = userid
+fb.set(stack)
+
+print "Created stack: " + str(stack)
+
+
+# create cards
+url = u"https://%s.firebaseio.com/cards/%s" % (opts.project, opts.stackname)
+fb = Firebase(url)
+fb.set(cards)
+
+print "Added cards to stack: " + str(cards)
