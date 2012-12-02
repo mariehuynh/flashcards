@@ -140,15 +140,26 @@
     this.cardsRef.child("stackorder").child("foton").child(this.stackName).set(newOrder);
   }
 
+  Cards.Controller.prototype.displayTopCard = function () {
+    this.context.font="60px Arial";
+    this.context.fillStyle="#000000";
+    this.context.fillText(this.cards[0]['front'], 250, 180);
+  }
+
   Cards.Controller.prototype.displayTopCard = function (side) {
     // Clear Canvas
     this.canvas.width = this.canvas.width;
 
     // Redraw Canvas
     this.context.textAlign = 'center';
-    this.context.font="40px Arial";
+    this.context.font="60px Arial";
     this.context.fillStyle="#000000";
     this.context.fillText(this.cards[0][side], 250, 180);
+
+    if(side == 'back') {
+      this.context.font="35px Arial";
+      this.context.fillText(this.cards[0]['notes'], 250,220);
+    }
   }
 
   Cards.start();
