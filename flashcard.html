@@ -1,0 +1,155 @@
+<html>
+<head>
+  <title>Algorithms for Philomaths: Flashcards</title>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://static.firebase.com/v0/firebase.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://www.firebase.com/css/example.css">
+</head>
+
+<body class="cards-body">
+  <h1>Firebase Flashcards </h1>
+  <div>
+    <canvas id="canvas0" width="500" height="500"></canvas>
+  </div>
+  <input type="button" id="restartButton" value="Restart Game" disabled />
+  <p id="gameInProgress">Game is in progress.  You will automatically join if either player leaves.</p>
+
+
+<script type="text/javascript">
+
+  var canvas = $("#canvas0").get(0);
+  if (!canvas || !canvas.getContext || !canvas.getContext('2d'))
+    alert("You must use a browser that supports HTML5 Canvas to run this demo.");
+
+  function start() {
+    var cardsRef = new Firebase('https://mariehuynh.firebaseio.com/');
+    var cardsController = new Cards.Controller(cardsRef);
+  }
+
+  var Cards = {};
+
+
+  /**
+   * Represents a single card
+   */
+
+  Cards.Card = function (front, back, notes) {
+    // Initialize the card
+    this.cardID = Math.floor(Math.random() * 1000000);
+    this.front = front;
+    this.back = back;
+    this.notes = notes;
+  };
+
+  /**
+   * Writes the current card data into Firebase.
+   */
+  Cards.Card.prototype.writeToFirebase = function (cardRef) {
+
+
+    cardRef.child(this.cardID).set({ front: this.front, back: this.back, notes: this.notes});
+  };
+
+
+  /**
+   * Stores the state of a flashcards stack and handles drawing it.
+   */
+  Cards.Stack = function (canvas, playerRef) {
+    this.context = canvas.getContext('2d');
+    this.playerRef = playerRef;
+    this.snapshot = null;
+    this.isMyBoard = false;
+
+    /*
+    // Listen for changes to our board.
+    var self = this;
+    playerRef.on('value', function(snapshot) {
+      self.snapshot = snapshot;
+      self.draw();
+    });
+    */
+  };
+
+
+
+  Cards.Controller = function (cardsRef) {
+    this.cardsRef = cardsRef;
+
+    // Import cards into stacks
+    this.importCards();
+
+    // Draw cards
+    this.drawCanvas();
+    //this.playingState = Cards.PlayingState.Watching;
+    //this.waitToJoin();
+  };
+
+
+  Cards.Controller.prototype.importCards = function () {
+    // Get stuff from Nick //XXX
+    this.stacks = [];
+
+
+    // Temp data
+
+    var stackname = 'Mandarin stack';
+
+
+    var stackRef = this.cardsRef.child('Mandarin stack');
+    this.stacks[stackname] = new Array();
+
+    for (var i = 0; i < 5; i++){
+      var newcard = new Cards.Card("front stuff" + i, "back stuff" + i, "notes" + i);
+      this.stacks[stackname].push(newcard);
+      newcard.writeToFirebase(stackRef);
+    }
+   };
+
+
+  Cards.Controller.prototype.drawCanvas = function () {
+
+    var playerRef = this.cardsRef.child('player');
+    var canvas = $('#canvas0').get(0);
+    this.stacks.push(new Cards.Stack(canvas, playerRef));
+
+  };
+
+
+  /**
+   * Once we've joined, enable controlling our player.
+   */
+  Cards.Controller.prototype.startPlaying = function (playerNum) {
+    this.myPlayerRef = this.cardsRef.child('player' + playerNum);
+    this.opponentPlayerRef = this.cardsRef.child('player' + (1 - playerNum));
+    this.myBoard = this.boards[playerNum];
+    this.myBoard.isMyBoard = true;
+    this.myBoard.draw();
+
+    // Clear our 'online' status when we disconnect so somebody else can join.
+    this.myPlayerRef.child('online').removeOnDisconnect();
+
+    // Detect when other player pushes rows to our board.
+    this.watchForExtraRows();
+
+    // Detect when game is restarted by other player.
+    this.watchForRestart();
+
+    $('#gameInProgress').hide();
+
+    var self = this;
+    $('#restartButton').removeAttr('disabled');
+    $("#restartButton").click(function () {
+      self.restartGame();
+    });
+
+    this.initializePiece();
+    this.enableKeyboard();
+    this.resetGravity();
+  };
+
+
+  start();
+
+</script>
+</body>
+</html>
