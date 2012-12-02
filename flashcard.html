@@ -114,7 +114,7 @@
     });
 
     $("#hardButton").click(function () {
-      self.reinsertTopCard(2);
+      self.reinsertTopCard(0);
       self.displayTopCard('front');
     });
 
@@ -125,8 +125,9 @@
     });
   };
 
-  Cards.Controller.prototype.reinsertTopCard = function () {
-    var newInd = Math.floor(this.cards.length * Math.random());  // uniform for the moment
+  Cards.Controller.prototype.reinsertTopCard = function (easy) {
+    var halfLen = this.cards.length / 2;
+    var newInd = Math.floor(halfLen * Math.random()) + easy * halfLen;
     var newOrder = new Array(this.cards.length);
     var i = 0;
     for (; i < newInd; i++) {
