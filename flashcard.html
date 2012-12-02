@@ -23,34 +23,22 @@
     alert("You must use a browser that supports HTML5 Canvas to run this demo.");
 
   function start() {
-    var cardsRef = new Firebase('https://mariehuynh.firebaseio.com/');
+    var cardsRef = new Firebase('https://foton.firebaseio.com/');
     var cardsController = new Cards.Controller(cardsRef);
   }
 
   var Cards = {};
 
-
   /**
    * Represents a single card
    */
 
-  Cards.Card = function (front, back, notes) {
-    // Initialize the card
-    this.cardID = Math.floor(Math.random() * 1000000);
-    this.front = front;
-    this.back = back;
-    this.notes = notes;
+  Cards.Card = function (cardID, jsonCard) {
+    this.cardID = cardID;
+    this.front = jsonCard.front;
+    this.back = jsonCard.back;
+    this.notes = jsonCard.notes;
   };
-
-  /**
-   * Writes the current card data into Firebase.
-   */
-  Cards.Card.prototype.writeToFirebase = function (cardRef) {
-
-
-    cardRef.child(this.cardID).set({ front: this.front, back: this.back, notes: this.notes});
-  };
-
 
   /**
    * Stores the state of a flashcards stack and handles drawing it.
@@ -69,36 +57,34 @@
     */
   };
 
+  Cards.Stack.prototype.setOrder = function (cardOrder) {
+    // input: list of card_id
+
+  }
 
   Cards.Controller = function (cardsRef) {
     this.cardsRef = cardsRef;
 
-    // Import cards into stacks
-    this.importCards();
+    // FIXME: hardcoded
+    this.importStack("foods_mandarin");
 
     // Start game
     this.play();
   };
 
 
-  Cards.Controller.prototype.importCards = function () {
-    // Get stuff from Nick //XXX
-    this.stacks = [];
-
-
-    // Temp data
-
-    var stackname = 'Mandarin stack';
-
-
-    var stackRef = this.cardsRef.child('Mandarin stack');
-    this.stacks[stackname] = new Array();
-
-    for (var i = 0; i < 5; i++){
-      var newcard = new Cards.Card("front stuff" + i, "back stuff" + i, "notes" + i);
-      this.stacks[stackname].push(newcard);
-      newcard.writeToFirebase(stackRef);
-    }
+  Cards.Controller.prototype.importStack = function (stackName) {
+    // load cards
+    that = this;
+    var tempCards = this.cardsRef.child("cards").child(stackName).once('value', function (snapshot) {
+      var tmpCards = snapshot.val();
+      that.cards = new Array(tmpCards.length);
+      var cards = that.cards;
+      var i = 0;
+      for (var card_id in tmpCards) {
+        cards[i++] = new Cards.Card(card_id, tmpCards[card_id]);
+      }
+    });
    };
 
 
