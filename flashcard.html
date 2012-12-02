@@ -9,7 +9,7 @@
 <body class="cards-body">
   <h1>Firebase Flashcards </h1>
   <div>
-    <canvas id="canvas0" width="500" height="500"></canvas>
+    <canvas id="canvas0" width="500" height="350"></canvas>
   </div>
   <input type="button" id="easyButton" value="That was Easy" />
   <input type="button" id="flipButton" value="Flip"          />
@@ -96,7 +96,7 @@
           var card_id = tmpOrder[i];
           cards[i] = new Cards.Card(card_id, tmpCards[card_id]);
         }
-        // now that order has been updated, call displayTopCard()
+        that.displayTopCard();
       });
     });
    };
@@ -106,48 +106,56 @@
    * Once we've joined, enable controlling our player.
    */
   Cards.Controller.prototype.play = function () {
-    var canvas = $("#canvas0").get(0);
-    
-    var context = canvas.getContext('2d');
-
-    this.displayCard();
+    this.canvas = $("#canvas0").get(0);
+    this.context = canvas.getContext('2d');
+    this.context.textAlign = 'center';
 
     var self = this;
 
     $("#easyButton").click(function () {
-      // Mark card as easy
-
-
       // Reinsert card
-
+      self.moveTopCard(1)
 
       // Display next card
-      this.displayCard();
+      self.displayTopCard();
     });
 
     $("#hardButton").click(function () {
-      // Mark card as hard
-
-
       // Reinsert card
 
 
       // Display next card
-      this.displayCard();
+      self.displayTopCard();
 
     });
 
     $("#flipButton").click(function () {
       // flip card
-
+      self.flipTopCard();
     });
 
     //this.enableKeyboard();
   };
 
-  Cards.Controller.prototype.displayCard = function () {
-  
-  
+  Cards.Controller.prototype.displayTopCard = function (context) {
+    this.context.font="40px Arial";
+    this.context.fillStyle="#000000";
+    this.context.fillText(this.cards[0]['front'], 250, 180);
+  }
+
+  Cards.Controller.prototype.moveTopCard = function (context) {
+    this.context.font="40px Arial";
+    this.context.fillStyle="#000000";
+    this.context.fillText(this.cards[0]['front'], 250, 180);
+  }
+
+  Cards.Controller.prototype.flipTopCard = function (context) {
+    this.canvas.width=this.canvas.width;
+    this.context.textAlign = 'center';
+    
+    this.context.font="40px Arial";
+    this.context.fillStyle="#000000";
+    this.context.fillText(this.cards[0]['back'], 250, 180);
   }
 
   start();
