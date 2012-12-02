@@ -118,10 +118,11 @@
       self.displayTopCard('front');
     });
 
-    $("#flipButton").toggle(function() {
-      self.displayTopCard('back');
-    }, function() {
-      self.displayTopCard('front');
+    $("#flipButton").click(function() {
+      if(self.state == 'front')
+        self.displayTopCard('back');
+      else
+        self.displayTopCard('front');
     });
   };
 
@@ -155,6 +156,7 @@
     this.context.font="60px Arial";
     this.context.fillStyle="#000000";
     this.context.fillText(this.cards[0][side], 250, 180);
+    this.state = side;
 
     if(side == 'back') {
       this.context.font="35px Arial";
