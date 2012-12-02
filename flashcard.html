@@ -4,12 +4,21 @@
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
   <script type="text/javascript" src="https://static.firebase.com/v0/firebase.js"></script>
   <link rel="stylesheet" type="text/css" href="https://www.firebase.com/css/example.css">
+
+  <style>
+    #card {
+      width:500px;
+      height:200px;
+      padding:50px 0 0 0;
+      font-size: 50px;
+    }
+  </style>
+
 </head>
 
 <body class="cards-body">
   <h1>Firebase Flashcards </h1>
-  <div>
-    <canvas id="canvas0" width="500" height="350"></canvas>
+  <div id="card">
   </div>
   <input type="button" id="easyButton" value="That was Easy" />
   <input type="button" id="flipButton" value="Flip"          />
@@ -17,10 +26,6 @@
 
 
 <script type="text/javascript">
-
-  var canvas = $("#canvas0").get(0);
-  if (!canvas || !canvas.getContext || !canvas.getContext('2d'))
-    alert("You must use a browser that supports HTML5 Canvas to run this demo.");
 
   var Cards = {};
 
@@ -43,7 +48,7 @@
   /**
    * Stores the state of a flashcards stack and handles drawing it.
    */
-  Cards.Stack = function (canvas, playerRef) {
+  Cards.Stack = function (playerRef) {
     this.playerRef = playerRef;
     this.snapshot = null;
 
@@ -102,10 +107,6 @@
    * Once we've joined, enable controlling our player.
    */
   Cards.Controller.prototype.play = function () {
-    this.canvas = $("#canvas0").get(0);
-    this.context = canvas.getContext('2d');
-    this.context.textAlign = 'center';
-
     var self = this;
 
     $("#easyButton").click(function () {
@@ -142,25 +143,20 @@
   }
 
   Cards.Controller.prototype.displayTopCard = function () {
-    this.context.font="60px Arial";
+    this.context.font="50px Arial";
     this.context.fillStyle="#000000";
     this.context.fillText(this.cards[0]['front'], 250, 180);
   }
 
   Cards.Controller.prototype.displayTopCard = function (side) {
-    // Clear Canvas
-    this.canvas.width = this.canvas.width;
 
-    // Redraw Canvas
-    this.context.textAlign = 'center';
-    this.context.font="60px Arial";
-    this.context.fillStyle="#000000";
-    this.context.fillText(this.cards[0][side], 250, 180);
+
+    $("#card").text(this.cards[0][side]);
     this.state = side;
 
     if(side == 'back') {
-      this.context.font="35px Arial";
-      this.context.fillText(this.cards[0]['notes'], 250,220);
+      $("#card").html(this.cards[0]['back'] + "<br>" + this.cards[0]['notes']);
+
     }
   }
 
